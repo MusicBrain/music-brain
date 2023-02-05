@@ -1,0 +1,7 @@
+{
+  "name": "openneuro",
+  "version": "1.0.0",
+  "dependencies": {
+    "@openneuro/cli": "^4.15.1"
+  }
+}
