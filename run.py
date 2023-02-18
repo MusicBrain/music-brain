@@ -3,6 +3,8 @@
 import logging
 import matplotlib.pyplot as plt
 import mne
+import numpy
+import scipy
 
 logging.basicConfig(level='INFO', format='%(asctime)s %(levelname)s [%(module)s:%(lineno)d] %(message)s')
 logging.getLogger('mne').setLevel('ERROR')
@@ -24,6 +26,14 @@ for sub in range(1, sub_count + 1):
     sub_list.append(ses_list)
 
 raw:mne.io.Raw = sub_list[0][0]
-raw.plot(n_channels=128)
-raw.compute_psd().plot()
+
+spectrum = raw.compute_psd()
+psds, freqs = spectrum.get_data(return_freqs=True)
+counts = numpy.bincount(numpy.argmax(psds, axis=1))
+peaks, properties = scipy.signal.find_peaks(numpy.concatenate(([0], counts, [0])))
+peaks -= 1
+print(peaks)
+
+raw.plot(n_channels=128, show=False)
+fig = raw.compute_psd().plot(show=False)
 plt.show()
