@@ -1,39 +1,49 @@
 #!venv/bin/python
 
-import logging
 import matplotlib.pyplot as plt
-import mne
-import numpy
-import scipy
+import numpy as np
+from utils import *
 
-logging.basicConfig(level='INFO', format='%(asctime)s %(levelname)s [%(module)s:%(lineno)d] %(message)s')
-logging.getLogger('mne').setLevel('ERROR')
+CHANNEL = 79
 
-sub_count = 1 #20
-ses_count = 1 #12
-
-sub_list = []
-for sub in range(1, sub_count + 1):
-    logging.info('Loading subject %03d' % sub)
-    ses_list = []
-
-    for ses in range(1, ses_count + 1):
-        data_path = 'musin-g/sub-%03d/ses-%02d/eeg/sub-%03d_ses-%02d_task-MusicListening_run-%d_eeg' % (sub, ses, sub, ses, ses)
-        data = mne.io.read_raw_eeglab(data_path + '.set', preload=True, montage_units='mm')
-        data.drop_channels(['E129'])
-        ses_list.append(data)
-
-    sub_list.append(ses_list)
-
-raw:mne.io.Raw = sub_list[0][0]
-
+raw = read_raw_data(1, 1)
 spectrum = raw.compute_psd()
-psds, freqs = spectrum.get_data(return_freqs=True)
-counts = numpy.bincount(numpy.argmax(psds, axis=1))
-peaks, properties = scipy.signal.find_peaks(numpy.concatenate(([0], counts, [0])))
-peaks -= 1
-print(peaks)
+all_psds, freqs = spectrum.get_data(return_freqs=True)
 
-raw.plot(n_channels=128, show=False)
-fig = raw.compute_psd().plot(show=False)
+plt.figure(figsize=(12, 4))
+
+psds = all_psds[CHANNEL]
+psds_db = convert_psds(psds, dB=True)
+
+plt.xlabel('Frequency (Hz)')
+plt.ylabel(get_unit_label(dB=True))
+plt.plot(freqs, psds_db, lw=1, color='black')
+
+for name in BANDS.keys():
+    band = BANDS[name]
+    idx = np.logical_and(freqs >= band.min_freq, freqs <= band.max_freq)
+    plt.fill_between(freqs, psds_db, y2=psds_db.min(), where=idx, color=band.color)
+
+plt.tick_params(length=3)
+plt.xticks(
+    [np.average([band.min_freq, band.max_freq]) for band in BANDS.values()],
+    BANDS.keys(),
+    rotation=-60,
+    rotation_mode='anchor',
+    ha='left'
+)
+
+text = ''
+for name in BANDS.keys():
+    band = BANDS[name]
+    power = get_power(psds, freqs, BANDS[name])
+    unit = get_unit_label()
+    text += '%s (%.1f-%.1f Hz):\t%.3f %s\n' % (name, band.min_freq, band.max_freq, power, unit)
+plt.text(len(psds_db), psds_db.max(), text, ha='right', va='top')
+
+peaks = get_peaks(all_psds, freqs)
+for peak in peaks:
+    plt.vlines(peak, psds_db.min(), psds_db.max(), color='darkblue', lw=0.5, linestyles='dashed')
+
 plt.show()
+plt.close()
