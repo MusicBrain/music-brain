@@ -21,10 +21,10 @@ def convert_psds(psds, dB=False, estimate='power', unit='µV'):
         np.multiply(psds, 10, out=psds)
     return psds
 
-def get_peaks(all_psds, freqs):
+def get_peaks(all_psds):
     counts = np.bincount(np.argmax(all_psds, axis=1))
     peaks, _ = scipy.signal.find_peaks(np.concatenate(([0], counts, [0])))
-    return np.take(freqs, peaks - 1)
+    return peaks - 1
 
 def get_power(psds, freqs, band):
     freq_res = (freqs[-1] - freqs[0]) / len(freqs)
