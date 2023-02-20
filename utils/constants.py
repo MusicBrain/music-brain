@@ -1,17 +1,18 @@
 __all__ = ['BANDS', 'MAX_SES', 'MAX_SUB']
 
 class Band:
-    def __init__(self, min_freq, max_freq, color):
+    def __init__(self, symbol, min_freq, max_freq, color):
+        self.symbol = symbol
         self.min_freq = min_freq
         self.max_freq = max_freq
         self.color = color
 
 BANDS = {
-    'delta': Band(0.5, 4, 'skyblue'),
-    'theta': Band(4, 7, 'hotpink'),
-    'alpha': Band(8, 13, 'salmon'),
-    'beta': Band(13, 30, 'lightseagreen'),
-    'gamma': Band(30, 128, 'thistle')
+    'Delta': Band('$\\delta$ (delta)', 0.5, 4, 'skyblue'),
+    'Theta': Band('$\\theta$ (theta)', 4, 7, 'hotpink'),
+    'Alpha': Band('$\\alpha$ (alpha)', 8, 13, 'salmon'),
+    'Beta': Band('$\\beta$ (beta)', 13, 30, 'lightseagreen'),
+    'Gamma': Band('$\\gamma$ (gamma)', 30, 128, 'thistle')
 }
 
 MAX_SUB = 20
