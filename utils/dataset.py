@@ -2,8 +2,10 @@ __all__ = ['read_all_raw_data', 'read_raw_data']
 
 import logging
 import mne
+import mne_bids
 from pathlib import Path
 
+MONTAGE = mne.channels.make_standard_montage('GSN-HydroCel-128')
 ROOT = Path(__file__).parent / '..' / 'musin-g'
 
 def read_all_raw_data(max_sub, max_ses):
@@ -19,7 +21,13 @@ def read_all_raw_data(max_sub, max_ses):
     return sub_list
 
 def read_raw_data(sub, ses):
-    data_path = ROOT / ('sub-%03d' % sub) / ('ses-%02d' % ses) / 'eeg' / ('sub-%03d_ses-%02d_task-MusicListening_run-%d_eeg.set' % (sub, ses, ses))
-    data = mne.io.read_raw_eeglab(data_path, preload=True, montage_units='mm')
-    data.drop_channels(['E129'])
+    path = mne_bids.BIDSPath(
+        subject='%03d' % sub,
+        session='%02d' % ses,
+        task='MusicListening',
+        run='1',
+        root='musin-g',
+        datatype='eeg')
+    data = mne_bids.read_raw_bids(path, {'preload': True})
+    data.set_eeg_reference(ref_channels=['E129'])
     return data

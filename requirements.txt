@@ -1,2 +1,4 @@
 jupyter
 mne
+mne_bids
+pymatreader
