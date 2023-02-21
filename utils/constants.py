@@ -1,4 +1,6 @@
-__all__ = ['BANDS', 'MAX_SES', 'MAX_SUB']
+__all__ = ['BANDS', 'DEFAULT_MONTAGE', 'EASYCAP_MONTAGE', 'MAX_SES', 'MAX_SUB']
+
+import mne
 
 class Band:
     def __init__(self, symbol, min_freq, max_freq, color):
@@ -17,3 +19,6 @@ BANDS = {
 
 MAX_SUB = 20
 MAX_SES = 12
+
+DEFAULT_MONTAGE = mne.channels.make_standard_montage('GSN-HydroCel-128')
+EASYCAP_MONTAGE = mne.channels.make_standard_montage('easycap-M1')
