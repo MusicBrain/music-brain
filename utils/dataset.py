@@ -21,7 +21,7 @@ def read_raw_data(sub, ses):
         subject='%03d' % sub,
         session='%02d' % ses,
         task='MusicListening',
-        run='1',
+        run='%d' % ses,
         root='musin-g',
         datatype='eeg')
     data = mne_bids.read_raw_bids(path, {'preload': True})
