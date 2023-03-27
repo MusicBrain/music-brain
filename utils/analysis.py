@@ -39,8 +39,9 @@ def get_power(psds, freqs, band):
     y = np.append(y, right)
     x = np.append(x, band.max_freq)
 
-    y = convert_psds(y)
-    return scipy.integrate.simps(y, x)
+    power = np.array([scipy.integrate.simps(y, x)])
+    power = convert_psds(power, dB=True)
+    return power[0]
 
 def get_power0(psds, freqs, band):
     freq_res = (freqs[-1] - freqs[0]) / len(freqs)
